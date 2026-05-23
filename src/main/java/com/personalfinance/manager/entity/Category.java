@@ -162,6 +162,7 @@ public class Category {
             return this;
         }
 
+        @org.springframework.lang.NonNull
         public Category build() {
             return new Category(id, user, name, type, isCustom, createdAt);
         }

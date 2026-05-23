@@ -198,6 +198,7 @@ public class Transaction {
             return this;
         }
 
+        @org.springframework.lang.NonNull
         public Transaction build() {
             return new Transaction(id, user, category, amount, transactionDate, description, createdAt, updatedAt);
         }

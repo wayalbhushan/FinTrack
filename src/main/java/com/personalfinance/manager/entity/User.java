@@ -171,6 +171,7 @@ public class User {
             return this;
         }
 
+        @org.springframework.lang.NonNull
         public User build() {
             return new User(id, username, password, fullName, phoneNumber, createdAt, updatedAt);
         }

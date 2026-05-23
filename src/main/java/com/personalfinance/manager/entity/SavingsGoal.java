@@ -199,6 +199,7 @@ public class SavingsGoal {
             return this;
         }
 
+        @org.springframework.lang.NonNull
         public SavingsGoal build() {
             return new SavingsGoal(id, user, goalName, targetAmount, targetDate, startDate, createdAt, updatedAt);
         }
