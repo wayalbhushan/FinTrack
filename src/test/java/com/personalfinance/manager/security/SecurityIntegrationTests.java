@@ -65,7 +65,7 @@ class SecurityIntegrationTests {
                         .content(toJson(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("User registered successfully"))
-                .andExpect(jsonPath("$.userId").value(notNullValue()));
+                .andExpect(jsonPath("$.userId").value(Objects.requireNonNull(notNullValue())));
     }
 
     @Test
