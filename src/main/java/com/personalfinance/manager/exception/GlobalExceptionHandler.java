@@ -13,9 +13,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import org.springframework.lang.NonNull;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final @NonNull URI ABOUT_BLANK_URI = Objects.requireNonNull(URI.create("about:blank"));
 
     /**
      * Handles Jakarta Validation errors (400 Bad Request).
@@ -27,7 +31,7 @@ public class GlobalExceptionHandler {
                 "Request validation failed"
         );
         problemDetail.setTitle("Bad Request");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
 
         Map<String, String> errors = new HashMap<>();
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
@@ -47,7 +51,7 @@ public class GlobalExceptionHandler {
                 "Invalid username or password"
         );
         problemDetail.setTitle("Unauthorized");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
         return problemDetail;
     }
 
@@ -61,7 +65,7 @@ public class GlobalExceptionHandler {
                 "Access is denied"
         );
         problemDetail.setTitle("Forbidden");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
         return problemDetail;
     }
 
@@ -75,7 +79,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         problemDetail.setTitle("Conflict");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
         return problemDetail;
     }
 
@@ -89,7 +93,7 @@ public class GlobalExceptionHandler {
                 "Database integrity constraint violation occurred"
         );
         problemDetail.setTitle("Conflict");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
         return problemDetail;
     }
 
@@ -103,7 +107,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         problemDetail.setTitle("Not Found");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
         return problemDetail;
     }
 
@@ -118,7 +122,7 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred on the server"
         );
         problemDetail.setTitle("Internal Server Error");
-        problemDetail.setType(URI.create("about:blank"));
+        problemDetail.setType(ABOUT_BLANK_URI);
         return problemDetail;
     }
 }
