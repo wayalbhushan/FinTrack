@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +57,7 @@ class SecurityIntegrationTests {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(toJson(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("User registered successfully"))
                 .andExpect(jsonPath("$.userId").value(notNullValue()));
@@ -81,7 +82,7 @@ class SecurityIntegrationTests {
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(toJson(request)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.title").value("Conflict"))
                 .andExpect(jsonPath("$.detail").value("Username is already taken"));
@@ -101,7 +102,7 @@ class SecurityIntegrationTests {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(toJson(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Login successful"))
                 .andExpect(cookie().exists("SESSION_TOKEN"))
@@ -115,7 +116,7 @@ class SecurityIntegrationTests {
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(toJson(request)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.title").value("Unauthorized"))
                 .andExpect(jsonPath("$.detail").value("Invalid username or password"));
@@ -141,7 +142,7 @@ class SecurityIntegrationTests {
         LoginRequest loginRequest = new LoginRequest("auth@example.com", "password");
         String cookieHeader = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(toJson(loginRequest)))
                 .andReturn().getResponse().getHeader("Set-Cookie");
 
         // Extract token
@@ -159,5 +160,11 @@ class SecurityIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(cookie().exists("SESSION_TOKEN"))
                 .andExpect(cookie().maxAge("SESSION_TOKEN", 0));
+    }
+
+    @NonNull
+    private String toJson(Object obj) throws Exception {
+        String json = objectMapper.writeValueAsString(obj);
+        return json != null ? json : "";
     }
 }
