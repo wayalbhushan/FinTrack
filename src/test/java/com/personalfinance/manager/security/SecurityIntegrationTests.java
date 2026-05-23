@@ -145,8 +145,21 @@ class SecurityIntegrationTests {
                         .content(toJson(loginRequest)))
                 .andReturn().getResponse().getHeader("Set-Cookie");
 
-        // Extract token
-        String token = cookieHeader.split(";")[0].split("=")[1];
+        if (cookieHeader == null) {
+            throw new AssertionError("Set-Cookie header was null");
+        }
+
+        String[] cookieParts = cookieHeader.split(";");
+        if (cookieParts.length == 0) {
+            throw new AssertionError("Set-Cookie header was empty");
+        }
+
+        String[] tokenParts = cookieParts[0].split("=");
+        if (tokenParts.length < 2) {
+            throw new AssertionError("SESSION_TOKEN value was missing");
+        }
+
+        String token = tokenParts[1];
 
         // Access protected endpoint with cookie. Should get 404 (not found) instead of 401 (unauthorized)
         mockMvc.perform(get("/api/transactions")
