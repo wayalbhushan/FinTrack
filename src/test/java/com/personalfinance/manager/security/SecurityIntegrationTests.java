@@ -65,7 +65,7 @@ class SecurityIntegrationTests {
                         .content(toJson(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("User registered successfully"))
-                .andExpect(jsonPath("$.userId").value(Objects.requireNonNull(notNullValue())));
+                .andExpect(jsonPath("$.userId").value(isNotNull()));
     }
 
     @Test
@@ -184,5 +184,11 @@ class SecurityIntegrationTests {
     private String toJson(Object obj) throws Exception {
         String json = objectMapper.writeValueAsString(obj);
         return json != null ? json : "";
+    }
+
+    @NonNull
+    @SuppressWarnings("null")
+    private static org.hamcrest.Matcher<? super Object> isNotNull() {
+        return notNullValue();
     }
 }
