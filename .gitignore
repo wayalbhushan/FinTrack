@@ -1,0 +1,17 @@
+# Maven build directory
+target/
+
+# Local Maven wrapper/binary folder
+maven-bin/
+
+# IDE files
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+
+# Logs
+*.log
