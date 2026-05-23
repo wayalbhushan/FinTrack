@@ -4,10 +4,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
+import org.springframework.lang.NonNull;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -23,17 +25,18 @@ public class JwtUtil {
     /**
      * Generates a signed JWT with the username as the subject and the userId as a claim.
      */
+    @NonNull
     public String generateToken(String username, UUID userId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_MS);
 
-        return Jwts.builder()
+        return Objects.requireNonNull(Jwts.builder()
                 .subject(username)
                 .claim("userId", userId.toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
-                .compact();
+                .compact());
     }
 
     /**
