@@ -76,7 +76,7 @@ public class SavingsGoalController {
             throw new AccessDeniedException("User is not authenticated");
         }
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        return userRepository.findById(userDetails.getId())
+        return userRepository.findById(java.util.Objects.requireNonNull(userDetails.getId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
     }
 }
