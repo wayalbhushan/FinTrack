@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -26,21 +25,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
      */
     boolean existsByUserAndCategory(User user, Category category);
 
-    /**
-     * Filters transactions based on optional parameters (startDate, endDate, categoryName) for the authenticated user,
-     * ordered by transaction date descending, then creation date descending.
-     */
-    @Query("SELECT t FROM Transaction t WHERE t.user = :user " +
-           "AND (:startDate IS NULL OR t.transactionDate >= :startDate) " +
-           "AND (:endDate IS NULL OR t.transactionDate <= :endDate) " +
-           "AND (:categoryName IS NULL OR t.category.name = :categoryName) " +
-           "ORDER BY t.transactionDate DESC, t.createdAt DESC")
-    List<Transaction> filterTransactions(
-        @Param("user") User user,
-        @Param("startDate") LocalDate startDate,
-        @Param("endDate") LocalDate endDate,
-        @Param("categoryName") String categoryName
-    );
 
     /**
      * Calculates the net savings (Total Income - Total Expenses) generated strictly between the given dates for the user.

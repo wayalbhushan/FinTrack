@@ -8,6 +8,11 @@ import com.personalfinance.manager.entity.User;
 import com.personalfinance.manager.exception.ResourceNotFoundException;
 import com.personalfinance.manager.repository.CategoryRepository;
 import com.personalfinance.manager.repository.TransactionRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -15,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,10 +31,12 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+    private final EntityManager entityManager;
 
-    public TransactionService(TransactionRepository transactionRepository, CategoryRepository categoryRepository) {
+    public TransactionService(TransactionRepository transactionRepository, CategoryRepository categoryRepository, EntityManager entityManager) {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
+        this.entityManager = entityManager;
     }
 
     /**
@@ -68,7 +75,27 @@ public class TransactionService {
         log.info("User {} fetching filtered transactions: startDate={}, endDate={}, categoryName={}",
                 user.getId(), startDate, endDate, categoryName);
 
-        List<Transaction> transactions = transactionRepository.filterTransactions(user, startDate, endDate, categoryName);
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Transaction> query = cb.createQuery(Transaction.class);
+        Root<Transaction> root = query.from(Transaction.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(cb.equal(root.get("user"), user));
+
+        if (startDate != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("transactionDate"), startDate));
+        }
+        if (endDate != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get("transactionDate"), endDate));
+        }
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
+            predicates.add(cb.equal(root.get("category").get("name"), categoryName));
+        }
+
+        query.where(predicates.toArray(new Predicate[0]));
+        query.orderBy(cb.desc(root.get("transactionDate")), cb.desc(root.get("createdAt")));
+
+        List<Transaction> transactions = entityManager.createQuery(query).getResultList();
         return transactions.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
