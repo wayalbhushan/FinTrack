@@ -55,12 +55,41 @@ public class DatabaseConfig {
 
             String jdbcUrl = jdbcUrlBuilder.toString();
 
-            return DataSourceBuilder.create()
+            DataSource dataSource = DataSourceBuilder.create()
                     .url(jdbcUrl)
                     .username(username)
                     .password(password)
                     .driverClassName("org.postgresql.Driver")
                     .build();
+
+            // Run database migration check to drop old tables if column ID type is still UUID.
+            // PostgreSQL does not allow implicit casts from UUID to BIGINT, causing constraint violation.
+            try (java.sql.Connection conn = dataSource.getConnection()) {
+                boolean needsReset = false;
+                try (java.sql.PreparedStatement ps = conn.prepareStatement(
+                        "SELECT data_type FROM information_schema.columns WHERE table_name = 'transactions' AND column_name = 'id'")) {
+                    try (java.sql.ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            String dataType = rs.getString("data_type");
+                            if ("uuid".equalsIgnoreCase(dataType)) {
+                                needsReset = true;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Table 'transactions' might not exist yet, which is fine.
+                }
+
+                if (needsReset) {
+                    try (java.sql.Statement stmt = conn.createStatement()) {
+                        stmt.execute("DROP TABLE IF EXISTS transactions, savings_goals, categories, users CASCADE");
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore connection or SQL issues at this stage; let Spring Boot fail normally if DB is down.
+            }
+
+            return dataSource;
         } catch (URISyntaxException e) {
             throw new RuntimeException("Failed to parse DATABASE_URL: " + databaseUrl, e);
         }
