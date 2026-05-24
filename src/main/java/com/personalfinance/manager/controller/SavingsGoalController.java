@@ -40,14 +40,14 @@ public class SavingsGoalController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SavingsGoalResponse>> getGoals() {
+    public ResponseEntity<com.personalfinance.manager.dto.SavingsGoalsListResponse> getGoals() {
         User user = getAuthenticatedUser();
         List<SavingsGoalResponse> goals = savingsGoalService.getGoals(user);
-        return ResponseEntity.ok(goals);
+        return ResponseEntity.ok(new com.personalfinance.manager.dto.SavingsGoalsListResponse(goals));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SavingsGoalResponse> getGoal(@PathVariable UUID id) {
+    public ResponseEntity<SavingsGoalResponse> getGoal(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         SavingsGoalResponse goal = savingsGoalService.getGoal(id, user);
         return ResponseEntity.ok(goal);
@@ -55,15 +55,15 @@ public class SavingsGoalController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SavingsGoalResponse> updateGoal(
-            @PathVariable UUID id,
-            @Valid @RequestBody SavingsGoalRequest request) {
+            @PathVariable Long id,
+            @RequestBody SavingsGoalRequest request) {
         User user = getAuthenticatedUser();
         SavingsGoalResponse response = savingsGoalService.updateGoal(id, request, user);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGoal(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteGoal(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         savingsGoalService.deleteGoal(id, user);
         return ResponseEntity.noContent().build();

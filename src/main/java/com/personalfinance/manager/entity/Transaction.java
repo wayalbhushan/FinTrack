@@ -28,9 +28,9 @@ import java.util.UUID;
 public class Transaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -67,7 +67,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(UUID id, User user, Category category, BigDecimal amount, LocalDate transactionDate, String description, Instant createdAt, Instant updatedAt) {
+    public Transaction(Long id, User user, Category category, BigDecimal amount, LocalDate transactionDate, String description, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.user = user;
         this.category = category;
@@ -79,11 +79,11 @@ public class Transaction {
     }
 
     // Getters and Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -149,7 +149,7 @@ public class Transaction {
     }
 
     public static class TransactionBuilder {
-        private UUID id;
+        private Long id;
         private User user;
         private Category category;
         private BigDecimal amount;
@@ -158,7 +158,7 @@ public class Transaction {
         private Instant createdAt;
         private Instant updatedAt;
 
-        public TransactionBuilder id(UUID id) {
+        public TransactionBuilder id(Long id) {
             this.id = id;
             return this;
         }

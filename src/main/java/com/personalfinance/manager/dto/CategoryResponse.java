@@ -8,16 +8,16 @@ public class CategoryResponse {
     private UUID id;
     private String name;
     private CategoryType type;
-    private Boolean isCustom;
+    private Boolean custom;
 
     public CategoryResponse() {
     }
 
-    public CategoryResponse(UUID id, String name, CategoryType type, Boolean isCustom) {
+    public CategoryResponse(UUID id, String name, CategoryType type, Boolean custom) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.isCustom = isCustom;
+        this.custom = custom;
     }
 
     public UUID getId() {
@@ -44,11 +44,11 @@ public class CategoryResponse {
         this.type = type;
     }
 
-    public Boolean getIsCustom() {
-        return isCustom;
+    public Boolean getCustom() {
+        return custom;
     }
 
-    public void setIsCustom(Boolean isCustom) {
-        this.isCustom = isCustom;
+    public void setCustom(Boolean custom) {
+        this.custom = custom;
     }
 }

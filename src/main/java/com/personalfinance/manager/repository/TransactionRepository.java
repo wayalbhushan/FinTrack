@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     /**
      * Finds all transactions for a user, ordered by transaction date in descending order (most recent first).
@@ -27,19 +27,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     boolean existsByUserAndCategory(User user, Category category);
 
     /**
-     * Filters transactions based on optional parameters (startDate, endDate, categoryId) for the authenticated user,
+     * Filters transactions based on optional parameters (startDate, endDate, categoryName) for the authenticated user,
      * ordered by transaction date descending, then creation date descending.
      */
     @Query("SELECT t FROM Transaction t WHERE t.user = :user " +
            "AND (:startDate IS NULL OR t.transactionDate >= :startDate) " +
            "AND (:endDate IS NULL OR t.transactionDate <= :endDate) " +
-           "AND (:categoryId IS NULL OR t.category.id = :categoryId) " +
+           "AND (:categoryName IS NULL OR t.category.name = :categoryName) " +
            "ORDER BY t.transactionDate DESC, t.createdAt DESC")
     List<Transaction> filterTransactions(
         @Param("user") User user,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
-        @Param("categoryId") UUID categoryId
+        @Param("categoryName") String categoryName
     );
 
     /**

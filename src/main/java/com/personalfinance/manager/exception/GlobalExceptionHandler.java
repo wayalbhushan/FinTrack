@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.springframework.lang.NonNull;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -147,6 +149,34 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage()
+        );
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setType(ABOUT_BLANK_URI);
+        return problemDetail;
+    }
+
+    /**
+     * Handles JSON parsing and deserialization errors (400 Bad Request).
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Malformed JSON request or invalid field format: " + ex.getMostSpecificCause().getMessage()
+        );
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setType(ABOUT_BLANK_URI);
+        return problemDetail;
+    }
+
+    /**
+     * Handles method argument type mismatches (e.g. invalid query params or path variables) (400 Bad Request).
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Invalid parameter value for: " + ex.getName()
         );
         problemDetail.setTitle("Bad Request");
         problemDetail.setType(ABOUT_BLANK_URI);

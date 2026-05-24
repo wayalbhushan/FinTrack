@@ -29,9 +29,9 @@ import java.util.UUID;
 public class SavingsGoal {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -68,7 +68,7 @@ public class SavingsGoal {
     public SavingsGoal() {
     }
 
-    public SavingsGoal(UUID id, User user, String goalName, BigDecimal targetAmount, LocalDate targetDate, LocalDate startDate, Instant createdAt, Instant updatedAt) {
+    public SavingsGoal(Long id, User user, String goalName, BigDecimal targetAmount, LocalDate targetDate, LocalDate startDate, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.user = user;
         this.goalName = goalName;
@@ -80,11 +80,11 @@ public class SavingsGoal {
     }
 
     // Getters and Setters
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -150,7 +150,7 @@ public class SavingsGoal {
     }
 
     public static class SavingsGoalBuilder {
-        private UUID id;
+        private Long id;
         private User user;
         private String goalName;
         private BigDecimal targetAmount;
@@ -159,7 +159,7 @@ public class SavingsGoal {
         private Instant createdAt;
         private Instant updatedAt;
 
-        public SavingsGoalBuilder id(UUID id) {
+        public SavingsGoalBuilder id(Long id) {
             this.id = id;
             return this;
         }

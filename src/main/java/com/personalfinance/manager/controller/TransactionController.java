@@ -42,26 +42,26 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> getTransactions(
+    public ResponseEntity<com.personalfinance.manager.dto.TransactionsListResponse> getTransactions(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) UUID categoryId) {
+            @RequestParam(required = false) String category) {
         User user = getAuthenticatedUser();
-        List<TransactionResponse> transactions = transactionService.getTransactions(user, startDate, endDate, categoryId);
-        return ResponseEntity.ok(transactions);
+        List<TransactionResponse> transactions = transactionService.getTransactions(user, startDate, endDate, category);
+        return ResponseEntity.ok(new com.personalfinance.manager.dto.TransactionsListResponse(transactions));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TransactionResponse> updateTransaction(
-            @PathVariable UUID id,
-            @Valid @RequestBody TransactionRequest request) {
+            @PathVariable Long id,
+            @RequestBody TransactionRequest request) {
         User user = getAuthenticatedUser();
         TransactionResponse response = transactionService.updateTransaction(id, request, user);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         transactionService.deleteTransaction(id, user);
         return ResponseEntity.noContent().build();

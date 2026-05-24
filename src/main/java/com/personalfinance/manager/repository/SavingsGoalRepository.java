@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface SavingsGoalRepository extends JpaRepository<SavingsGoal, UUID> {
+public interface SavingsGoalRepository extends JpaRepository<SavingsGoal, Long> {
 
     /**
      * Finds all savings goals for the user.
@@ -20,5 +20,5 @@ public interface SavingsGoalRepository extends JpaRepository<SavingsGoal, UUID> 
     /**
      * Finds a savings goal by ID and user.
      */
-    Optional<SavingsGoal> findByIdAndUser(UUID id, User user);
+    Optional<SavingsGoal> findByIdAndUser(Long id, User user);
 }

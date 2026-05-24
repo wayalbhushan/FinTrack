@@ -1,19 +1,19 @@
 package com.personalfinance.manager.dto;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Map;
 
 public class ReportResponse {
 
     private BigDecimal totalIncome;
     private BigDecimal totalExpenses;
     private BigDecimal netSavings;
-    private List<CategoryReportDetail> categoryBreakdown;
+    private Map<String, BigDecimal> categoryBreakdown;
 
     public ReportResponse() {
     }
 
-    public ReportResponse(BigDecimal totalIncome, BigDecimal totalExpenses, BigDecimal netSavings, List<CategoryReportDetail> categoryBreakdown) {
+    public ReportResponse(BigDecimal totalIncome, BigDecimal totalExpenses, BigDecimal netSavings, Map<String, BigDecimal> categoryBreakdown) {
         this.totalIncome = totalIncome;
         this.totalExpenses = totalExpenses;
         this.netSavings = netSavings;
@@ -44,11 +44,11 @@ public class ReportResponse {
         this.netSavings = netSavings;
     }
 
-    public List<CategoryReportDetail> getCategoryBreakdown() {
+    public Map<String, BigDecimal> getCategoryBreakdown() {
         return categoryBreakdown;
     }
 
-    public void setCategoryBreakdown(List<CategoryReportDetail> categoryBreakdown) {
+    public void setCategoryBreakdown(Map<String, BigDecimal> categoryBreakdown) {
         this.categoryBreakdown = categoryBreakdown;
     }
 }

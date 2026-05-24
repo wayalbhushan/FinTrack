@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
@@ -61,10 +63,31 @@ public class ReportService {
         BigDecimal netSavings = totalIncome.subtract(totalExpenses);
 
         List<CategoryReportDetail> breakdown = transactionRepository.getCategoryBreakdownByUserAndDateRange(user, startDate, endDate);
+        Map<String, BigDecimal> breakdownMap = breakdown.stream()
+                .collect(Collectors.toMap(
+                        CategoryReportDetail::getCategoryName,
+                        d -> formatAmount(d.getTotalAmount()),
+                        BigDecimal::add
+                ));
 
         log.info("Report generated for User {} from {} to {}: totalIncome={}, totalExpenses={}, netSavings={}",
                 user.getId(), startDate, endDate, totalIncome, totalExpenses, netSavings);
 
-        return new ReportResponse(totalIncome, totalExpenses, netSavings, breakdown);
+        return new ReportResponse(
+                formatAmount(totalIncome),
+                formatAmount(totalExpenses),
+                formatAmount(netSavings),
+                breakdownMap
+        );
+    }
+
+    private BigDecimal formatAmount(BigDecimal value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        if (value.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return value.setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

@@ -10,6 +10,8 @@ import com.personalfinance.manager.repository.UserRepository;
 import com.personalfinance.manager.security.CustomUserDetails;
 import com.personalfinance.manager.security.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import com.personalfinance.manager.security.TokenBlacklist;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,13 +35,15 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final TokenBlacklist tokenBlacklist;
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+                          AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @PostMapping("/register")
@@ -85,7 +89,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<LoginResponse> logout(HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> logout(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("SESSION_TOKEN".equals(cookie.getName())) {
+                    tokenBlacklist.blacklist(cookie.getValue());
+                }
+            }
+        }
+
         jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("SESSION_TOKEN", "");
         cookie.setMaxAge(0);
         cookie.setPath("/");

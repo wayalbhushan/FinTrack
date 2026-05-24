@@ -8,8 +8,9 @@ import java.util.UUID;
 
 public class TransactionResponse {
 
-    private UUID id;
+    private Long id;
     private String category;
+    private String type;
     private BigDecimal amount;
 
     @JsonProperty("date")
@@ -22,9 +23,10 @@ public class TransactionResponse {
     public TransactionResponse() {
     }
 
-    public TransactionResponse(UUID id, String category, BigDecimal amount, LocalDate date, String description, Instant createdAt, Instant updatedAt) {
+    public TransactionResponse(Long id, String category, String type, BigDecimal amount, LocalDate date, String description, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.category = category;
+        this.type = type;
         this.amount = amount;
         this.date = date;
         this.description = description;
@@ -32,11 +34,11 @@ public class TransactionResponse {
         this.updatedAt = updatedAt;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -46,6 +48,14 @@ public class TransactionResponse {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public BigDecimal getAmount() {

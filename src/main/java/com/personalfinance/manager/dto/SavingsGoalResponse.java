@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class SavingsGoalResponse {
 
-    private UUID id;
+    private Long id;
     private String goalName;
     private BigDecimal targetAmount;
     private LocalDate targetDate;
@@ -18,7 +18,7 @@ public class SavingsGoalResponse {
     public SavingsGoalResponse() {
     }
 
-    public SavingsGoalResponse(UUID id, String goalName, BigDecimal targetAmount, LocalDate targetDate, LocalDate startDate,
+    public SavingsGoalResponse(Long id, String goalName, BigDecimal targetAmount, LocalDate targetDate, LocalDate startDate,
                                BigDecimal currentProgress, BigDecimal progressPercentage, BigDecimal remainingAmount) {
         this.id = id;
         this.goalName = goalName;
@@ -30,11 +30,11 @@ public class SavingsGoalResponse {
         this.remainingAmount = remainingAmount;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

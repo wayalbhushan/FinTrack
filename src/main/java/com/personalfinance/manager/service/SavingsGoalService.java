@@ -71,7 +71,7 @@ public class SavingsGoalService {
      * Retrieves a single savings goal for the user.
      */
     @Transactional(readOnly = true)
-    public SavingsGoalResponse getGoal(UUID id, User user) {
+    public SavingsGoalResponse getGoal(Long id, User user) {
         log.info("User {} fetching savings goal {}", user.getId(), id);
         SavingsGoal goal = savingsGoalRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> {
@@ -85,7 +85,7 @@ public class SavingsGoalService {
      * Updates an existing savings goal.
      */
     @Transactional
-    public SavingsGoalResponse updateGoal(UUID id, SavingsGoalRequest request, User user) {
+    public SavingsGoalResponse updateGoal(Long id, SavingsGoalRequest request, User user) {
         log.info("User {} attempting to update savings goal {}", user.getId(), id);
 
         SavingsGoal goal = savingsGoalRepository.findByIdAndUser(id, user)
@@ -94,10 +94,24 @@ public class SavingsGoalService {
                     return new ResourceNotFoundException("Savings goal not found");
                 });
 
-        goal.setGoalName(request.getGoalName());
-        goal.setTargetAmount(request.getTargetAmount());
-        goal.setTargetDate(request.getTargetDate());
-        goal.setStartDate(request.getStartDate());
+        if (request.getGoalName() != null) {
+            goal.setGoalName(request.getGoalName());
+        }
+        if (request.getTargetAmount() != null) {
+            if (request.getTargetAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Target amount must be positive");
+            }
+            goal.setTargetAmount(request.getTargetAmount());
+        }
+        if (request.getTargetDate() != null) {
+            if (request.getTargetDate().isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Target date must be in the future");
+            }
+            goal.setTargetDate(request.getTargetDate());
+        }
+        if (request.getStartDate() != null) {
+            goal.setStartDate(request.getStartDate());
+        }
 
         SavingsGoal updated = savingsGoalRepository.save(goal);
         log.info("User {} successfully updated savings goal {}", user.getId(), updated.getId());
@@ -108,7 +122,7 @@ public class SavingsGoalService {
      * Deletes a savings goal.
      */
     @Transactional
-    public void deleteGoal(UUID id, User user) {
+    public void deleteGoal(Long id, User user) {
         log.info("User {} attempting to delete savings goal {}", user.getId(), id);
 
         SavingsGoal goal = savingsGoalRepository.findByIdAndUser(id, user)
@@ -145,7 +159,11 @@ public class SavingsGoalService {
             progressPercentage = progressForCalc
                     .divide(targetAmount, 4, java.math.RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(100))
-                    .setScale(2, java.math.RoundingMode.HALF_UP);
+                    .setScale(2, java.math.RoundingMode.HALF_UP)
+                    .stripTrailingZeros();
+            if (progressPercentage.scale() < 1) {
+                progressPercentage = progressPercentage.setScale(1, java.math.RoundingMode.HALF_UP);
+            }
         }
 
         BigDecimal remainingAmount = targetAmount.subtract(currentProgress);
@@ -156,12 +174,22 @@ public class SavingsGoalService {
         return new SavingsGoalResponse(
                 goal.getId(),
                 goal.getGoalName(),
-                targetAmount,
+                formatAmount(targetAmount),
                 goal.getTargetDate(),
                 goal.getStartDate(),
-                currentProgress,
+                formatAmount(currentProgress),
                 progressPercentage,
-                remainingAmount
+                formatAmount(remainingAmount)
         );
+    }
+
+    private BigDecimal formatAmount(BigDecimal value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        if (value.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return value.setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -63,11 +64,11 @@ public class TransactionService {
      * Filters transactions for the user.
      */
     @Transactional(readOnly = true)
-    public List<TransactionResponse> getTransactions(User user, LocalDate startDate, LocalDate endDate, UUID categoryId) {
-        log.info("User {} fetching filtered transactions: startDate={}, endDate={}, categoryId={}",
-                user.getId(), startDate, endDate, categoryId);
+    public List<TransactionResponse> getTransactions(User user, LocalDate startDate, LocalDate endDate, String categoryName) {
+        log.info("User {} fetching filtered transactions: startDate={}, endDate={}, categoryName={}",
+                user.getId(), startDate, endDate, categoryName);
 
-        List<Transaction> transactions = transactionRepository.filterTransactions(user, startDate, endDate, categoryId);
+        List<Transaction> transactions = transactionRepository.filterTransactions(user, startDate, endDate, categoryName);
         return transactions.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -81,7 +82,7 @@ public class TransactionService {
      * - Tenant isolation is enforced.
      */
     @Transactional
-    public TransactionResponse updateTransaction(UUID id, TransactionRequest request, User user) {
+    public TransactionResponse updateTransaction(Long id, TransactionRequest request, User user) {
         log.info("User {} attempting to update transaction {}", user.getId(), id);
 
         Transaction transaction = transactionRepository.findById(java.util.Objects.requireNonNull(id))
@@ -93,22 +94,28 @@ public class TransactionService {
             throw new ResourceNotFoundException("Transaction not found");
         }
 
-        // Business Rule: Cannot update the transaction date
-        if (request.getDate() != null && !request.getDate().equals(transaction.getTransactionDate())) {
-            log.warn("User {} attempted to modify date of transaction {}", user.getId(), id);
-            throw new IllegalArgumentException("Cannot update the transaction date");
+
+
+        if (request.getCategory() != null) {
+            Category category = categoryRepository.findByUserAndName(user, request.getCategory())
+                    .or(() -> categoryRepository.findByUserAndName(null, request.getCategory()))
+                    .orElseThrow(() -> {
+                        log.warn("Category {} not found for user {}", request.getCategory(), user.getId());
+                        return new IllegalArgumentException("Category not found: " + request.getCategory());
+                    });
+            transaction.setCategory(category);
         }
 
-        Category category = categoryRepository.findByUserAndName(user, request.getCategory())
-                .or(() -> categoryRepository.findByUserAndName(null, request.getCategory()))
-                .orElseThrow(() -> {
-                    log.warn("Category {} not found for user {}", request.getCategory(), user.getId());
-                    return new IllegalArgumentException("Category not found: " + request.getCategory());
-                });
+        if (request.getAmount() != null) {
+            if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Amount must be positive");
+            }
+            transaction.setAmount(request.getAmount());
+        }
 
-        transaction.setCategory(category);
-        transaction.setAmount(request.getAmount());
-        transaction.setDescription(request.getDescription());
+        if (request.getDescription() != null) {
+            transaction.setDescription(request.getDescription());
+        }
 
         Transaction updated = transactionRepository.save(transaction);
         log.info("User {} updated transaction {}", user.getId(), updated.getId());
@@ -119,7 +126,7 @@ public class TransactionService {
      * Deletes a transaction. Enforces tenant isolation.
      */
     @Transactional
-    public void deleteTransaction(UUID id, User user) {
+    public void deleteTransaction(Long id, User user) {
         log.info("User {} attempting to delete transaction {}", user.getId(), id);
 
         Transaction transaction = transactionRepository.findById(java.util.Objects.requireNonNull(id))
@@ -139,11 +146,22 @@ public class TransactionService {
         return new TransactionResponse(
                 t.getId(),
                 t.getCategory().getName(),
-                t.getAmount(),
+                t.getCategory().getType().name(),
+                formatAmount(t.getAmount()),
                 t.getTransactionDate(),
                 t.getDescription(),
                 t.getCreatedAt(),
                 t.getUpdatedAt()
         );
+    }
+
+    private BigDecimal formatAmount(BigDecimal value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        if (value.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return value.setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }
