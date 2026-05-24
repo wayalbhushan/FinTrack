@@ -40,7 +40,7 @@ public class TransactionService {
     public TransactionResponse createTransaction(TransactionRequest request, User user) {
         log.info("User {} attempting to create transaction", user.getId());
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(java.util.Objects.requireNonNull(request.getCategoryId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + request.getCategoryId()));
 
         // Validate Category belongs to user or is default (user is null)
@@ -87,7 +87,7 @@ public class TransactionService {
     public TransactionResponse updateTransaction(UUID id, TransactionRequest request, User user) {
         log.info("User {} attempting to update transaction {}", user.getId(), id);
 
-        Transaction transaction = transactionRepository.findById(id)
+        Transaction transaction = transactionRepository.findById(java.util.Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
         // Anti-IDOR Check
@@ -102,7 +102,7 @@ public class TransactionService {
             throw new IllegalArgumentException("Cannot update the transaction date");
         }
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Category category = categoryRepository.findById(java.util.Objects.requireNonNull(request.getCategoryId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + request.getCategoryId()));
 
         // Validate Category ownership
@@ -127,7 +127,7 @@ public class TransactionService {
     public void deleteTransaction(UUID id, User user) {
         log.info("User {} attempting to delete transaction {}", user.getId(), id);
 
-        Transaction transaction = transactionRepository.findById(id)
+        Transaction transaction = transactionRepository.findById(java.util.Objects.requireNonNull(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
         // Anti-IDOR Check
