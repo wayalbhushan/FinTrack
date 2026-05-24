@@ -62,10 +62,10 @@ public class SavingsGoalController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGoal(@PathVariable Long id) {
+    public ResponseEntity<com.personalfinance.manager.dto.MessageResponse> deleteGoal(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         savingsGoalService.deleteGoal(id, user);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new com.personalfinance.manager.dto.MessageResponse("Goal deleted successfully"));
     }
 
     private User getAuthenticatedUser() {

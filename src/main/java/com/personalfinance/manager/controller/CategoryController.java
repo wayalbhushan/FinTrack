@@ -46,10 +46,10 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{name}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable String name) {
+    public ResponseEntity<com.personalfinance.manager.dto.MessageResponse> deleteCategory(@PathVariable String name) {
         User user = getAuthenticatedUser();
         categoryService.deleteCategory(name, user);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new com.personalfinance.manager.dto.MessageResponse("Category deleted successfully"));
     }
 
     private User getAuthenticatedUser() {

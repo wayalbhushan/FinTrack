@@ -60,10 +60,10 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
+    public ResponseEntity<com.personalfinance.manager.dto.MessageResponse> deleteTransaction(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         transactionService.deleteTransaction(id, user);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new com.personalfinance.manager.dto.MessageResponse("Transaction deleted successfully"));
     }
 
     private User getAuthenticatedUser() {
