@@ -136,7 +136,7 @@ public class TransactionService {
             throw new ResourceNotFoundException("Transaction not found");
         }
 
-        transactionRepository.delete(transaction);
+        transactionRepository.delete(java.util.Objects.requireNonNull(transaction));
         log.info("User {} deleted transaction {}", user.getId(), id);
     }
 

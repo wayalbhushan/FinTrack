@@ -99,7 +99,7 @@ public class CategoryService {
             throw new ConflictException("Category '" + name + "' is currently referenced by transactions and cannot be deleted");
         }
 
-        categoryRepository.delete(category);
+        categoryRepository.delete(java.util.Objects.requireNonNull(category));
         log.info("User {} successfully deleted custom category: {}", user.getId(), name);
     }
 

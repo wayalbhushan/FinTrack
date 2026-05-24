@@ -113,7 +113,7 @@ public class SavingsGoalService {
                     return new ResourceNotFoundException("Savings goal not found");
                 });
 
-        savingsGoalRepository.delete(goal);
+        savingsGoalRepository.delete(java.util.Objects.requireNonNull(goal));
         log.info("User {} deleted savings goal {}", user.getId(), id);
     }
 
