@@ -112,6 +112,48 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles resource not found exceptions (404 Not Found).
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Not Found");
+        problemDetail.setType(ABOUT_BLANK_URI);
+        return problemDetail;
+    }
+
+    /**
+     * Handles resource conflict exceptions (409 Conflict).
+     */
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflictException(ConflictException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Conflict");
+        problemDetail.setType(ABOUT_BLANK_URI);
+        return problemDetail;
+    }
+
+    /**
+     * Handles bad argument validation exceptions (400 Bad Request).
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setType(ABOUT_BLANK_URI);
+        return problemDetail;
+    }
+
+    /**
      * Fallback for any unhandled general exception (500 Internal Server Error).
      * Strictly does not expose the internal error details or stack trace.
      */

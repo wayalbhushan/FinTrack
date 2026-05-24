@@ -167,7 +167,7 @@ class SecurityIntegrationTests {
         String token = tokenParts[1];
 
         // Access protected endpoint with cookie. Should get 404 (not found) instead of 401 (unauthorized)
-        mockMvc.perform(get("/api/transactions")
+        mockMvc.perform(get("/api/does-not-exist")
                         .cookie(new Cookie("SESSION_TOKEN", token)))
                 .andExpect(status().isNotFound()); // Bypassed auth, hits dispatcher and finds no handler (404)
     }
