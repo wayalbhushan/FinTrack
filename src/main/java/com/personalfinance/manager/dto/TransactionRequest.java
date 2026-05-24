@@ -1,16 +1,17 @@
 package com.personalfinance.manager.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 public class TransactionRequest {
 
-    @NotNull(message = "Category ID is required")
-    private UUID categoryId;
+    @NotBlank(message = "Category name is required")
+    private String category;
 
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
@@ -18,26 +19,27 @@ public class TransactionRequest {
 
     @NotNull(message = "Transaction date is required")
     @PastOrPresent(message = "Transaction date cannot be in the future")
-    private LocalDate transactionDate;
+    @JsonProperty("date")
+    private LocalDate date;
 
     private String description;
 
     public TransactionRequest() {
     }
 
-    public TransactionRequest(UUID categoryId, BigDecimal amount, LocalDate transactionDate, String description) {
-        this.categoryId = categoryId;
+    public TransactionRequest(String category, BigDecimal amount, LocalDate date, String description) {
+        this.category = category;
         this.amount = amount;
-        this.transactionDate = transactionDate;
+        this.date = date;
         this.description = description;
     }
 
-    public UUID getCategoryId() {
-        return categoryId;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCategoryId(UUID categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public BigDecimal getAmount() {
@@ -48,12 +50,12 @@ public class TransactionRequest {
         this.amount = amount;
     }
 
-    public LocalDate getTransactionDate() {
-        return transactionDate;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setTransactionDate(LocalDate transactionDate) {
-        this.transactionDate = transactionDate;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public String getDescription() {

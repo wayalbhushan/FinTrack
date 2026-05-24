@@ -86,16 +86,12 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<LoginResponse> logout(HttpServletResponse response) {
-        // Clear/invalidate the SESSION_TOKEN cookie
-        ResponseCookie cookie = ResponseCookie.from("SESSION_TOKEN", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0) // immediately expire
-                .sameSite("Strict")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("SESSION_TOKEN", "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
 
         return ResponseEntity.ok(new LoginResponse("Logout successful"));
     }

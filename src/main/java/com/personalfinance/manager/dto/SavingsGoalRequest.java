@@ -20,7 +20,6 @@ public class SavingsGoalRequest {
     @Future(message = "Target date must be in the future")
     private LocalDate targetDate;
 
-    @NotNull(message = "Start date is required")
     private LocalDate startDate;
 
     public SavingsGoalRequest() {

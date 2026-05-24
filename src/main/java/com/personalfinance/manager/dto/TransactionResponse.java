@@ -1,5 +1,6 @@
 package com.personalfinance.manager.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -8,9 +9,12 @@ import java.util.UUID;
 public class TransactionResponse {
 
     private UUID id;
-    private CategoryResponse category;
+    private String category;
     private BigDecimal amount;
-    private LocalDate transactionDate;
+
+    @JsonProperty("date")
+    private LocalDate date;
+
     private String description;
     private Instant createdAt;
     private Instant updatedAt;
@@ -18,11 +22,11 @@ public class TransactionResponse {
     public TransactionResponse() {
     }
 
-    public TransactionResponse(UUID id, CategoryResponse category, BigDecimal amount, LocalDate transactionDate, String description, Instant createdAt, Instant updatedAt) {
+    public TransactionResponse(UUID id, String category, BigDecimal amount, LocalDate date, String description, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.category = category;
         this.amount = amount;
-        this.transactionDate = transactionDate;
+        this.date = date;
         this.description = description;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -36,11 +40,11 @@ public class TransactionResponse {
         this.id = id;
     }
 
-    public CategoryResponse getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(CategoryResponse category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 
@@ -52,12 +56,12 @@ public class TransactionResponse {
         this.amount = amount;
     }
 
-    public LocalDate getTransactionDate() {
-        return transactionDate;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setTransactionDate(LocalDate transactionDate) {
-        this.transactionDate = transactionDate;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public String getDescription() {

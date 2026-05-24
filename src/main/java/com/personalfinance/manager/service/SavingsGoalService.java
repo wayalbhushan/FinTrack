@@ -46,6 +46,10 @@ public class SavingsGoalService {
                 .startDate(request.getStartDate())
                 .build();
 
+        if (goal.getStartDate() == null) {
+            goal.setStartDate(LocalDate.now());
+        }
+
         SavingsGoal saved = savingsGoalRepository.save(goal);
         log.info("User {} created savings goal {} (ID: {})", user.getId(), saved.getGoalName(), saved.getId());
         return toResponse(saved);

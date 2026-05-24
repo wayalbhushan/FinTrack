@@ -1,6 +1,5 @@
 package com.personalfinance.manager.service;
 
-import com.personalfinance.manager.dto.CategoryResponse;
 import com.personalfinance.manager.dto.TransactionRequest;
 import com.personalfinance.manager.dto.TransactionResponse;
 import com.personalfinance.manager.entity.Category;
@@ -34,26 +33,24 @@ public class TransactionService {
 
     /**
      * Creates a transaction.
-     * Validates that the referenced category belongs to the user or is a default category.
+     * Looks up Category by name (must belong to the user OR be a default category).
      */
     @Transactional
     public TransactionResponse createTransaction(TransactionRequest request, User user) {
         log.info("User {} attempting to create transaction", user.getId());
 
-        Category category = categoryRepository.findById(java.util.Objects.requireNonNull(request.getCategoryId()))
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + request.getCategoryId()));
-
-        // Validate Category belongs to user or is default (user is null)
-        if (category.getUser() != null && !category.getUser().getId().equals(user.getId())) {
-            log.warn("User {} attempted to use category {} which belongs to another user", user.getId(), category.getId());
-            throw new IllegalArgumentException("Referenced category does not belong to the user");
-        }
+        Category category = categoryRepository.findByUserAndName(user, request.getCategory())
+                .or(() -> categoryRepository.findByUserAndName(null, request.getCategory()))
+                .orElseThrow(() -> {
+                    log.warn("Category {} not found for user {}", request.getCategory(), user.getId());
+                    return new IllegalArgumentException("Category not found: " + request.getCategory());
+                });
 
         Transaction transaction = Transaction.builder()
                 .user(user)
                 .category(category)
                 .amount(request.getAmount())
-                .transactionDate(request.getTransactionDate())
+                .transactionDate(request.getDate())
                 .description(request.getDescription())
                 .build();
 
@@ -97,19 +94,17 @@ public class TransactionService {
         }
 
         // Business Rule: Cannot update the transaction date
-        if (request.getTransactionDate() != null && !request.getTransactionDate().equals(transaction.getTransactionDate())) {
+        if (request.getDate() != null && !request.getDate().equals(transaction.getTransactionDate())) {
             log.warn("User {} attempted to modify date of transaction {}", user.getId(), id);
             throw new IllegalArgumentException("Cannot update the transaction date");
         }
 
-        Category category = categoryRepository.findById(java.util.Objects.requireNonNull(request.getCategoryId()))
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + request.getCategoryId()));
-
-        // Validate Category ownership
-        if (category.getUser() != null && !category.getUser().getId().equals(user.getId())) {
-            log.warn("User {} attempted to associate transaction {} with unauthorized category {}", user.getId(), id, category.getId());
-            throw new IllegalArgumentException("Referenced category does not belong to the user");
-        }
+        Category category = categoryRepository.findByUserAndName(user, request.getCategory())
+                .or(() -> categoryRepository.findByUserAndName(null, request.getCategory()))
+                .orElseThrow(() -> {
+                    log.warn("Category {} not found for user {}", request.getCategory(), user.getId());
+                    return new IllegalArgumentException("Category not found: " + request.getCategory());
+                });
 
         transaction.setCategory(category);
         transaction.setAmount(request.getAmount());
@@ -141,15 +136,9 @@ public class TransactionService {
     }
 
     private TransactionResponse toResponse(Transaction t) {
-        CategoryResponse categoryResponse = new CategoryResponse(
-                t.getCategory().getId(),
-                t.getCategory().getName(),
-                t.getCategory().getType(),
-                t.getCategory().getIsCustom()
-        );
         return new TransactionResponse(
                 t.getId(),
-                categoryResponse,
+                t.getCategory().getName(),
                 t.getAmount(),
                 t.getTransactionDate(),
                 t.getDescription(),
