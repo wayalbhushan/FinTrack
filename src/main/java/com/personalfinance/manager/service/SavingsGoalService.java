@@ -84,6 +84,7 @@ public class SavingsGoalService {
      * Updates an existing savings goal.
      */
     @Transactional
+    @SuppressWarnings("null")
     public SavingsGoalResponse updateGoal(Long id, SavingsGoalRequest request, User user) {
         log.info("User {} attempting to update savings goal {}", user.getId(), id);
 
