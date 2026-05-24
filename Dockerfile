@@ -12,4 +12,4 @@ COPY --from=build /app/target/manager-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 
 # Dynamic database URL translation at runtime
-ENTRYPOINT ["sh", "-c", "java -Dspring.datasource.url=$(echo $DATABASE_URL | sed 's/postgresql/jdbc:postgresql/') -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "export DB_USER=$(echo $DATABASE_URL | sed -E 's|^postgresql://([^:]+):.*|\\1|') && export DB_PASS=$(echo $DATABASE_URL | sed -E 's|^postgresql://[^:]+:([^@]+)@.*|\\1|') && export DB_URL=$(echo $DATABASE_URL | sed -E 's|^postgresql://[^:]+:[^@]+@(.*)|jdbc:postgresql://\\1|') && java -Dspring.datasource.url=$DB_URL -Dspring.datasource.username=$DB_USER -Dspring.datasource.password=$DB_PASS -jar app.jar"]
